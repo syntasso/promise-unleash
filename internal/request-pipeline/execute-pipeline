@@ -1,0 +1,95 @@
+#!/usr/bin/env sh
+
+set -x
+
+name="$(yq eval '.metadata.name' /input/object.yaml)"
+namespace="${name}-unleash"
+autoscaling="$(yq eval '.spec.autoscaling' /input/object.yaml)"
+
+helm_flags=""
+if [ "${autoscaling}" = "true" ]; then
+  helm_flags="--set autoscaling.enabled=true --set autoscaling.minReplicas=2 --set autoscaling.maxReplicas=5"
+fi
+
+cat > kustomization.yaml <<EOF
+namespace: ${namespace}
+resources:
+- unleash.yaml
+EOF
+
+helm template ${name} unleash ${helm_flags} \
+  --skip-tests \
+  --namespace=${namespace} \
+  --repo https://docs.getunleash.io/helm-charts | sed s_autoscaling/v2beta1_autoscaling/v2_g > unleash.yaml
+
+kubectl kustomize . | \
+  yq 'select(document_index != 0)' > /output/unleash.yaml
+
+kubectl create namespace $namespace --dry-run=client -o yaml > /output/namespace.yaml
+
+command="kubectl create secret generic --namespace $namespace unleash-postgresql --from-literal=postgres-password=\$(pwgen -1 32) --from-literal=password=\$(pwgen -1 32)"
+
+cat > /output/job.yaml <<EOF
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: secret-bootstrapper
+  namespace: ${namespace}
+spec:
+  template:
+    spec:
+      serviceAccount: secret-bootstrapper
+      containers:
+      - name: bootstrapper
+        image: ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
+        command: ["sh",  "-c", "${command}"]
+      restartPolicy: Never
+  backoffLimit: 4
+EOF
+
+
+cat > /output/sa.yaml <<EOF
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: secret-bootstrapper
+  namespace: ${namespace}
+EOF
+
+cat > /output/role.yaml <<EOF
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: secret-bootstrapper
+  namespace: ${namespace}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - "*"
+EOF
+
+cat > /output/rolebinding.yaml <<EOF
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: secret-bootstrapper
+  namespace: ${namespace}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: secret-bootstrapper
+subjects:
+- kind: ServiceAccount
+  name: secret-bootstrapper
+EOF
+
+
+cat > /metadata/status.yaml <<EOF
+message: Deployed to namepace $namespace. Initial default admin password is "unleash4all"
+username: admin
+password: unleash4all
+EOF

@@ -1,0 +1,38 @@
+apiVersion: platform.kratix.io/v1alpha1
+kind: Promise
+metadata:
+  creationTimestamp: null
+  name: unleash
+  namespace: default
+spec:
+  xaasCrd:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: unleashs.marketplace.kratix.io
+    spec:
+      group: marketplace.kratix.io
+      names:
+        kind: unleash
+        plural: unleashs
+        singular: unleash
+      scope: Namespaced
+      versions:
+      - name: v1alpha1
+        schema:
+          openAPIV3Schema:
+            properties:
+              spec:
+                properties:
+                  autoscaling:
+                    default: false
+                    description: If true, autoscaling will be enable with a minimum
+                      of 2 replicas, max of 5
+                    type: boolean
+                type: object
+            type: object
+        served: true
+        storage: true
+  xaasRequestPipeline:
+  - ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
+status: {}
