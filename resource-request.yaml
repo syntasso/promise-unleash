@@ -1,7 +1,7 @@
 apiVersion: marketplace.kratix.io/v1alpha1
 kind: unleash
 metadata:
-  name: single-example
+  name: example
   namespace: default
 spec:
   autoscaling: false
