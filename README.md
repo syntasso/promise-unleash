@@ -1,9 +1,7 @@
 # Unleash
 
 This Promise provides Unleash-as-a-Service. The Promise has 1 fields:
-* `.spec.autoscaling`
-
-Check the CRD documentation for more information.
+* `.spec.autoscaling` which can be set to `true` or `false`
 
 
 To install:
