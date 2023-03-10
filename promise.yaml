@@ -26,7 +26,7 @@ spec:
                 properties:
                   autoscaling:
                     default: false
-                    description: If true, autoscaling will be enable with a minimum
+                    description: If true, autoscaling will be enabled with a minimum
                       of 2 replicas, max of 5
                     type: boolean
                 type: object
