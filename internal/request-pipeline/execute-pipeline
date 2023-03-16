@@ -6,9 +6,12 @@ name="$(yq eval '.metadata.name' /input/object.yaml)"
 namespace="${name}-unleash"
 autoscaling="$(yq eval '.spec.autoscaling' /input/object.yaml)"
 
-helm_flags=""
+helm_flags="--set postgresql.enabled=false \
+            --set dbConfig.useExistingSecret.name=postgres.acid-example-postgresql.credentials.postgresql.acid.zalan.do"
 if [ "${autoscaling}" = "true" ]; then
-  helm_flags="--set autoscaling.enabled=true --set autoscaling.minReplicas=2 --set autoscaling.maxReplicas=5"
+  helm_flags="--set autoscaling.enabled=true \
+              --set autoscaling.minReplicas=2 \
+              --set autoscaling.maxReplicas=5"
 fi
 
 cat > kustomization.yaml <<EOF
@@ -27,25 +30,25 @@ kubectl kustomize . | \
 
 kubectl create namespace $namespace --dry-run=client -o yaml > /output/namespace.yaml
 
-command="kubectl create secret generic --namespace $namespace unleash-postgresql --from-literal=postgres-password=\$(pwgen -1 32) --from-literal=password=\$(pwgen -1 32)"
+# command="kubectl create secret generic --namespace $namespace unleash-postgresql --from-literal=postgres-password=\$(pwgen -1 32) --from-literal=password=\$(pwgen -1 32)"
 
-cat > /output/job.yaml <<EOF
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: secret-bootstrapper
-  namespace: ${namespace}
-spec:
-  template:
-    spec:
-      serviceAccount: secret-bootstrapper
-      containers:
-      - name: bootstrapper
-        image: ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
-        command: ["sh",  "-c", "${command}"]
-      restartPolicy: Never
-  backoffLimit: 4
-EOF
+# cat > /output/job.yaml <<EOF
+# apiVersion: batch/v1
+# kind: Job
+# metadata:
+#   name: secret-bootstrapper
+#   namespace: ${namespace}
+# spec:
+#   template:
+#     spec:
+#       serviceAccount: secret-bootstrapper
+#       containers:
+#       - name: bootstrapper
+#         image: ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
+#         command: ["sh",  "-c", "${command}"]
+#       restartPolicy: Never
+#   backoffLimit: 4
+# EOF
 
 
 cat > /output/sa.yaml <<EOF
