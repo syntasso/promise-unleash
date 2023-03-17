@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -e
+
+test_promise() {
+  echo "nothing to install"
+  exit 0
+}
+
+test_resource_request() {
+  kubectl wait --for=condition=Available --timeout=20s deployment/example-unleash -n example-unleash
+}
+
+if [ "$1" = "promise" ]; then
+  test_promise
+else
+  test_resource_request
+fi

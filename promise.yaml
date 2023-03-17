@@ -5,6 +5,8 @@ metadata:
   name: unleash
   namespace: default
 spec:
+  clusterSelector:
+    environment: platform
   xaasCrd:
     apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
@@ -18,21 +20,87 @@ spec:
         singular: unleash
       scope: Namespaced
       versions:
-      - name: v1alpha1
-        schema:
-          openAPIV3Schema:
-            properties:
-              spec:
-                properties:
-                  autoscaling:
-                    default: false
-                    description: If true, autoscaling will be enabled with a minimum
-                      of 2 replicas, max of 5
-                    type: boolean
-                type: object
-            type: object
-        served: true
-        storage: true
+        - name: v1alpha1
+          schema:
+            openAPIV3Schema:
+              properties:
+                spec:
+                  properties:
+                    autoscaling:
+                      default: false
+                      description: If true, autoscaling will be enabled with a
+                        minimum of 2 replicas, max of 5
+                      type: boolean
+                  type: object
+              type: object
+          served: true
+          storage: true
   xaasRequestPipeline:
-  - ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
-status: {}
+    - ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
+  workerClusterResources:
+    - apiVersion: platform.kratix.io/v1alpha1
+      kind: Promise
+      metadata:
+        creationTimestamp: null
+        name: unleashserver
+        namespace: default
+      spec:
+        clusterSelector:
+          environment: dev
+        xaasCrd:
+          apiVersion: apiextensions.k8s.io/v1
+          kind: CustomResourceDefinition
+          metadata:
+            name: unleashservers.marketplace.kratix.io
+          spec:
+            group: marketplace.kratix.io
+            names:
+              kind: unleashserver
+              plural: unleashservers
+              singular: unleashserver
+            scope: Namespaced
+            versions:
+              - name: v1alpha1
+                schema:
+                  openAPIV3Schema:
+                    properties:
+                      spec:
+                        properties:
+                          database_config:
+                            type: object
+                            description: Postgres Database configuration
+                            properties:
+                              secretName:
+                                type: string
+                                description: |
+                                  The name of the secret containing Postgres
+                                  credentials
+                          autoscaling:
+                            default: false
+                            description: |
+                              If true, autoscaling will be enabled with a
+                              minimum of 2 replicas, max of 5
+                            type: boolean
+                        type: object
+                    type: object
+                served: true
+                storage: true
+        xaasRequestPipeline:
+          - ghcr.io/syntasso/promise-unleash/unleash-server-request-pipeline:v0.1.0
+
+
+####
+# use cases:
+# - unleash
+#   - dont care about the db
+#     - just create one for me
+#       - compound promise
+#       - sends a postgres resource request on the same namespace <--
+#       - configure the helm flags
+#   - care of the db
+#     - provide the configuration
+#       - problem:
+#         - define the namespace where unleash will go in the pipeline
+#         - define the cluster unleash will be created in the scheduling
+#         - we need that cluster on that namespace to have access to a secret with the password
+#
