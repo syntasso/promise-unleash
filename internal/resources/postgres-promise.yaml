@@ -2,319 +2,307 @@ apiVersion: platform.kratix.io/v1alpha1
 kind: Promise
 metadata:
   creationTimestamp: null
-  name: unleash
+  name: postgresql
   namespace: default
 spec:
-  clusterSelector:
-    environment: platform
   workerClusterResources:
-  - apiVersion: platform.kratix.io/v1alpha1
-    kind: Promise
-    metadata:
-      creationTimestamp: null
-      name: postgresql
-      namespace: default
-    spec:
-      clusterSelector:
-        environment: dev
-      workerClusterResources:
-      - apiVersion: v1
-        kind: ServiceAccount
-        metadata:
-          labels:
-            app.kubernetes.io/instance: postgres-operator
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: postgres-operator
-            helm.sh/chart: postgres-operator-1.8.2
-          name: postgres-operator
-          namespace: default
-      - apiVersion: rbac.authorization.k8s.io/v1
+    - apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: postgres-operator
+          helm.sh/chart: postgres-operator-1.8.2
+        name: postgres-operator
+        namespace: default
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: postgres-operator
+          helm.sh/chart: postgres-operator-1.8.2
+        name: postgres-pod
+      rules:
+        - apiGroups:
+            - ""
+          resources:
+            - endpoints
+          verbs:
+            - create
+            - delete
+            - deletecollection
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+          verbs:
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - services
+          verbs:
+            - create
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: postgres-operator
+          helm.sh/chart: postgres-operator-1.8.2
+        name: postgres-operator
+      rules:
+        - apiGroups:
+            - acid.zalan.do
+          resources:
+            - postgresqls
+            - postgresqls/status
+            - operatorconfigurations
+          verbs:
+            - create
+            - delete
+            - deletecollection
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - acid.zalan.do
+          resources:
+            - postgresteams
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
+            - apiextensions.k8s.io
+          resources:
+            - customresourcedefinitions
+          verbs:
+            - get
+            - create
+            - patch
+            - update
+        - apiGroups:
+            - ""
+          resources:
+            - events
+          verbs:
+            - create
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - configmaps
+          verbs:
+            - get
+        - apiGroups:
+            - ""
+          resources:
+            - endpoints
+          verbs:
+            - create
+            - delete
+            - deletecollection
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - secrets
+          verbs:
+            - create
+            - delete
+            - get
+            - update
+        - apiGroups:
+            - ""
+          resources:
+            - nodes
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - persistentvolumeclaims
+          verbs:
+            - delete
+            - get
+            - list
+            - patch
+            - update
+        - apiGroups:
+            - ""
+          resources:
+            - persistentvolumes
+          verbs:
+            - get
+            - list
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+          verbs:
+            - delete
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - pods/exec
+          verbs:
+            - create
+        - apiGroups:
+            - ""
+          resources:
+            - services
+          verbs:
+            - create
+            - delete
+            - get
+            - patch
+            - update
+        - apiGroups:
+            - apps
+          resources:
+            - statefulsets
+            - deployments
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+        - apiGroups:
+            - batch
+          resources:
+            - cronjobs
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
+        - apiGroups:
+            - ""
+          resources:
+            - namespaces
+          verbs:
+            - get
+        - apiGroups:
+            - policy
+          resources:
+            - poddisruptionbudgets
+          verbs:
+            - create
+            - delete
+            - get
+        - apiGroups:
+            - ""
+          resources:
+            - serviceaccounts
+          verbs:
+            - get
+            - create
+        - apiGroups:
+            - rbac.authorization.k8s.io
+          resources:
+            - rolebindings
+          verbs:
+            - get
+            - create
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: postgres-operator
+          helm.sh/chart: postgres-operator-1.8.2
+        name: postgres-operator
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
         kind: ClusterRole
-        metadata:
-          labels:
-            app.kubernetes.io/instance: postgres-operator
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: postgres-operator
-            helm.sh/chart: postgres-operator-1.8.2
-          name: postgres-pod
-        rules:
-        - apiGroups:
-          - ""
-          resources:
-          - endpoints
-          verbs:
-          - create
-          - delete
-          - deletecollection
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          verbs:
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - services
-          verbs:
-          - create
-      - apiVersion: rbac.authorization.k8s.io/v1
-        kind: ClusterRole
-        metadata:
-          labels:
-            app.kubernetes.io/instance: postgres-operator
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: postgres-operator
-            helm.sh/chart: postgres-operator-1.8.2
-          name: postgres-operator
-        rules:
-        - apiGroups:
-          - acid.zalan.do
-          resources:
-          - postgresqls
-          - postgresqls/status
-          - operatorconfigurations
-          verbs:
-          - create
-          - delete
-          - deletecollection
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - acid.zalan.do
-          resources:
-          - postgresteams
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - apiextensions.k8s.io
-          resources:
-          - customresourcedefinitions
-          verbs:
-          - get
-          - create
-          - patch
-          - update
-        - apiGroups:
-          - ""
-          resources:
-          - events
-          verbs:
-          - create
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - configmaps
-          verbs:
-          - get
-        - apiGroups:
-          - ""
-          resources:
-          - endpoints
-          verbs:
-          - create
-          - delete
-          - deletecollection
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - secrets
-          verbs:
-          - create
-          - delete
-          - get
-          - update
-        - apiGroups:
-          - ""
-          resources:
-          - nodes
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - persistentvolumeclaims
-          verbs:
-          - delete
-          - get
-          - list
-          - patch
-          - update
-        - apiGroups:
-          - ""
-          resources:
-          - persistentvolumes
-          verbs:
-          - get
-          - list
-        - apiGroups:
-          - ""
-          resources:
-          - pods
-          verbs:
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - pods/exec
-          verbs:
-          - create
-        - apiGroups:
-          - ""
-          resources:
-          - services
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - apps
-          resources:
-          - statefulsets
-          - deployments
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-        - apiGroups:
-          - batch
-          resources:
-          - cronjobs
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-        - apiGroups:
-          - ""
-          resources:
-          - namespaces
-          verbs:
-          - get
-        - apiGroups:
-          - policy
-          resources:
-          - poddisruptionbudgets
-          verbs:
-          - create
-          - delete
-          - get
-        - apiGroups:
-          - ""
-          resources:
-          - serviceaccounts
-          verbs:
-          - get
-          - create
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - rolebindings
-          verbs:
-          - get
-          - create
-      - apiVersion: rbac.authorization.k8s.io/v1
-        kind: ClusterRoleBinding
-        metadata:
-          labels:
-            app.kubernetes.io/instance: postgres-operator
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: postgres-operator
-            helm.sh/chart: postgres-operator-1.8.2
-          name: postgres-operator
-        roleRef:
-          apiGroup: rbac.authorization.k8s.io
-          kind: ClusterRole
-          name: postgres-operator
-        subjects:
+        name: postgres-operator
+      subjects:
         - kind: ServiceAccount
           name: postgres-operator
           namespace: default
-      - apiVersion: v1
-        kind: Service
-        metadata:
-          labels:
-            app.kubernetes.io/instance: postgres-operator
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: postgres-operator
-            helm.sh/chart: postgres-operator-1.8.2
-          name: postgres-operator
-          namespace: default
-        spec:
-          ports:
+    - apiVersion: v1
+      kind: Service
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: postgres-operator
+          helm.sh/chart: postgres-operator-1.8.2
+        name: postgres-operator
+        namespace: default
+      spec:
+        ports:
           - port: 8080
             protocol: TCP
             targetPort: 8080
-          selector:
+        selector:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/name: postgres-operator
+        type: ClusterIP
+    - apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: postgres-operator
+          helm.sh/chart: postgres-operator-1.8.2
+        name: postgres-operator
+        namespace: default
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
             app.kubernetes.io/instance: postgres-operator
             app.kubernetes.io/name: postgres-operator
-          type: ClusterIP
-      - apiVersion: apps/v1
-        kind: Deployment
-        metadata:
-          labels:
-            app.kubernetes.io/instance: postgres-operator
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: postgres-operator
-            helm.sh/chart: postgres-operator-1.8.2
-          name: postgres-operator
-          namespace: default
-        spec:
-          replicas: 1
-          selector:
-            matchLabels:
+        template:
+          metadata:
+            annotations:
+              checksum/config: 5e43e52b4f2db120d38d4727aadf7071bc5a3249e01f3ca89ed2c65b1fe4e227
+            labels:
               app.kubernetes.io/instance: postgres-operator
               app.kubernetes.io/name: postgres-operator
-          template:
-            metadata:
-              annotations:
-                checksum/config: 5e43e52b4f2db120d38d4727aadf7071bc5a3249e01f3ca89ed2c65b1fe4e227
-              labels:
-                app.kubernetes.io/instance: postgres-operator
-                app.kubernetes.io/name: postgres-operator
-            spec:
-              affinity: {}
-              containers:
+          spec:
+            affinity: {}
+            containers:
               - env:
-                - name: POSTGRES_OPERATOR_CONFIGURATION_OBJECT
-                  value: postgres-operator
+                  - name: POSTGRES_OPERATOR_CONFIGURATION_OBJECT
+                    value: postgres-operator
                 image: registry.opensource.zalan.do/acid/postgres-operator:v1.8.2-43-g3e148ea5
                 imagePullPolicy: IfNotPresent
                 name: postgres-operator
@@ -330,185 +318,185 @@ spec:
                   readOnlyRootFilesystem: true
                   runAsNonRoot: true
                   runAsUser: 1000
-              nodeSelector: {}
-              serviceAccountName: postgres-operator
-              tolerations: []
-      - apiVersion: acid.zalan.do/v1
-        configuration:
-          aws_or_gcp:
-            aws_region: eu-central-1
-            enable_ebs_gp3_migration: false
-          connection_pooler:
-            connection_pooler_default_cpu_limit: "1"
-            connection_pooler_default_cpu_request: 500m
-            connection_pooler_default_memory_limit: 100Mi
-            connection_pooler_default_memory_request: 100Mi
-            connection_pooler_image: registry.opensource.zalan.do/acid/pgbouncer:master-22
-            connection_pooler_max_db_connections: 60
-            connection_pooler_mode: transaction
-            connection_pooler_number_of_instances: 2
-            connection_pooler_schema: pooler
-            connection_pooler_user: pooler
-          crd_categories:
+            nodeSelector: {}
+            serviceAccountName: postgres-operator
+            tolerations: []
+    - apiVersion: acid.zalan.do/v1
+      configuration:
+        aws_or_gcp:
+          aws_region: eu-central-1
+          enable_ebs_gp3_migration: false
+        connection_pooler:
+          connection_pooler_default_cpu_limit: "1"
+          connection_pooler_default_cpu_request: 500m
+          connection_pooler_default_memory_limit: 100Mi
+          connection_pooler_default_memory_request: 100Mi
+          connection_pooler_image: registry.opensource.zalan.do/acid/pgbouncer:master-22
+          connection_pooler_max_db_connections: 60
+          connection_pooler_mode: transaction
+          connection_pooler_number_of_instances: 2
+          connection_pooler_schema: pooler
+          connection_pooler_user: pooler
+        crd_categories:
           - all
-          debug:
-            debug_logging: true
-            enable_database_access: true
-          docker_image: registry.opensource.zalan.do/acid/spilo-14:2.1-p6
-          enable_crd_registration: true
-          enable_lazy_spilo_upgrade: false
-          enable_pgversion_env_var: true
-          enable_shm_volume: true
-          enable_spilo_wal_path_compat: false
-          etcd_host: ""
-          kubernetes:
-            cluster_domain: cluster.local
-            cluster_labels:
-              application: spilo
-            cluster_name_label: cluster-name
-            enable_cross_namespace_secret: false
-            enable_init_containers: true
-            enable_pod_antiaffinity: false
-            enable_pod_disruption_budget: true
-            enable_sidecars: true
-            oauth_token_secret_name: postgres-operator
-            pdb_name_format: postgres-{cluster}-pdb
-            pod_antiaffinity_topology_key: kubernetes.io/hostname
-            pod_management_policy: ordered_ready
-            pod_role_label: spilo-role
-            pod_service_account_name: postgres-pod
-            pod_terminate_grace_period: 5m
-            secret_name_template: '{username}.{cluster}.credentials.{tprkind}.{tprgroup}'
-            spilo_allow_privilege_escalation: true
-            spilo_privileged: false
-            storage_resize_mode: pvc
-            watched_namespace: '*'
-          load_balancer:
-            db_hosted_zone: db.example.com
-            enable_master_load_balancer: false
-            enable_master_pooler_load_balancer: false
-            enable_replica_load_balancer: false
-            enable_replica_pooler_load_balancer: false
-            external_traffic_policy: Cluster
-            master_dns_name_format: '{cluster}.{team}.{hostedzone}'
-            replica_dns_name_format: '{cluster}-repl.{team}.{hostedzone}'
-          logging_rest_api:
-            api_port: 8080
-            cluster_history_entries: 1000
-            ring_log_lines: 100
-          logical_backup:
-            logical_backup_docker_image: registry.opensource.zalan.do/acid/logical-backup:v1.8.0
-            logical_backup_job_prefix: logical-backup-
-            logical_backup_provider: s3
-            logical_backup_s3_access_key_id: ""
-            logical_backup_s3_bucket: my-bucket-url
-            logical_backup_s3_endpoint: ""
-            logical_backup_s3_region: ""
-            logical_backup_s3_retention_time: ""
-            logical_backup_s3_secret_access_key: ""
-            logical_backup_s3_sse: AES256
-            logical_backup_schedule: 30 00 * * *
-          major_version_upgrade:
-            major_version_upgrade_mode: "off"
-            minimal_major_version: "9.6"
-            target_major_version: "14"
-          max_instances: -1
-          min_instances: -1
-          postgres_pod_resources:
-            default_cpu_limit: "1"
-            default_cpu_request: 100m
-            default_memory_limit: 500Mi
-            default_memory_request: 100Mi
-            min_cpu_limit: 250m
-            min_memory_limit: 250Mi
-          repair_period: 5m
-          resync_period: 30m
-          teams_api:
-            enable_admin_role_for_users: true
-            enable_postgres_team_crd: false
-            enable_postgres_team_crd_superusers: false
-            enable_team_member_deprecation: false
-            enable_team_superuser: false
-            enable_teams_api: false
-            pam_role_name: zalandos
-            postgres_superuser_teams:
+        debug:
+          debug_logging: true
+          enable_database_access: true
+        docker_image: registry.opensource.zalan.do/acid/spilo-14:2.1-p6
+        enable_crd_registration: true
+        enable_lazy_spilo_upgrade: false
+        enable_pgversion_env_var: true
+        enable_shm_volume: true
+        enable_spilo_wal_path_compat: false
+        etcd_host: ""
+        kubernetes:
+          cluster_domain: cluster.local
+          cluster_labels:
+            application: spilo
+          cluster_name_label: cluster-name
+          enable_cross_namespace_secret: false
+          enable_init_containers: true
+          enable_pod_antiaffinity: false
+          enable_pod_disruption_budget: true
+          enable_sidecars: true
+          oauth_token_secret_name: postgres-operator
+          pdb_name_format: postgres-{cluster}-pdb
+          pod_antiaffinity_topology_key: kubernetes.io/hostname
+          pod_management_policy: ordered_ready
+          pod_role_label: spilo-role
+          pod_service_account_name: postgres-pod
+          pod_terminate_grace_period: 5m
+          secret_name_template: '{username}.{cluster}.credentials.{tprkind}.{tprgroup}'
+          spilo_allow_privilege_escalation: true
+          spilo_privileged: false
+          storage_resize_mode: pvc
+          watched_namespace: '*'
+        load_balancer:
+          db_hosted_zone: db.example.com
+          enable_master_load_balancer: false
+          enable_master_pooler_load_balancer: false
+          enable_replica_load_balancer: false
+          enable_replica_pooler_load_balancer: false
+          external_traffic_policy: Cluster
+          master_dns_name_format: '{cluster}.{team}.{hostedzone}'
+          replica_dns_name_format: '{cluster}-repl.{team}.{hostedzone}'
+        logging_rest_api:
+          api_port: 8080
+          cluster_history_entries: 1000
+          ring_log_lines: 100
+        logical_backup:
+          logical_backup_docker_image: registry.opensource.zalan.do/acid/logical-backup:v1.8.0
+          logical_backup_job_prefix: logical-backup-
+          logical_backup_provider: s3
+          logical_backup_s3_access_key_id: ""
+          logical_backup_s3_bucket: my-bucket-url
+          logical_backup_s3_endpoint: ""
+          logical_backup_s3_region: ""
+          logical_backup_s3_retention_time: ""
+          logical_backup_s3_secret_access_key: ""
+          logical_backup_s3_sse: AES256
+          logical_backup_schedule: 30 00 * * *
+        major_version_upgrade:
+          major_version_upgrade_mode: "off"
+          minimal_major_version: "9.6"
+          target_major_version: "14"
+        max_instances: -1
+        min_instances: -1
+        postgres_pod_resources:
+          default_cpu_limit: "1"
+          default_cpu_request: 100m
+          default_memory_limit: 500Mi
+          default_memory_request: 100Mi
+          min_cpu_limit: 250m
+          min_memory_limit: 250Mi
+        repair_period: 5m
+        resync_period: 30m
+        teams_api:
+          enable_admin_role_for_users: true
+          enable_postgres_team_crd: false
+          enable_postgres_team_crd_superusers: false
+          enable_team_member_deprecation: false
+          enable_team_superuser: false
+          enable_teams_api: false
+          pam_role_name: zalandos
+          postgres_superuser_teams:
             - postgres_superusers
-            protected_role_names:
+          protected_role_names:
             - admin
             - cron_admin
-            role_deletion_suffix: _deleted
-            team_admin_role: admin
-            team_api_role_configuration:
-              log_statement: all
-          timeouts:
-            patroni_api_check_interval: 1s
-            patroni_api_check_timeout: 5s
-            pod_deletion_wait_timeout: 10m
-            pod_label_wait_timeout: 10m
-            ready_wait_interval: 3s
-            ready_wait_timeout: 30s
-            resource_check_interval: 3s
-            resource_check_timeout: 10m
-          users:
-            enable_password_rotation: false
-            password_rotation_interval: 90
-            password_rotation_user_retention: 180
-            replication_username: standby
-            super_username: postgres
-          workers: 8
-        kind: OperatorConfiguration
-        metadata:
-          labels:
-            app.kubernetes.io/instance: postgres-operator
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: postgres-operator
-            helm.sh/chart: postgres-operator-1.8.2
-          name: postgres-operator
-          namespace: default
-      - apiVersion: apiextensions.k8s.io/v1
-        kind: CustomResourceDefinition
-        metadata:
-          name: operatorconfigurations.acid.zalan.do
-        spec:
-          group: acid.zalan.do
-          names:
-            categories:
+          role_deletion_suffix: _deleted
+          team_admin_role: admin
+          team_api_role_configuration:
+            log_statement: all
+        timeouts:
+          patroni_api_check_interval: 1s
+          patroni_api_check_timeout: 5s
+          pod_deletion_wait_timeout: 10m
+          pod_label_wait_timeout: 10m
+          ready_wait_interval: 3s
+          ready_wait_timeout: 30s
+          resource_check_interval: 3s
+          resource_check_timeout: 10m
+        users:
+          enable_password_rotation: false
+          password_rotation_interval: 90
+          password_rotation_user_retention: 180
+          replication_username: standby
+          super_username: postgres
+        workers: 8
+      kind: OperatorConfiguration
+      metadata:
+        labels:
+          app.kubernetes.io/instance: postgres-operator
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: postgres-operator
+          helm.sh/chart: postgres-operator-1.8.2
+        name: postgres-operator
+        namespace: default
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      metadata:
+        name: operatorconfigurations.acid.zalan.do
+      spec:
+        group: acid.zalan.do
+        names:
+          categories:
             - all
-            kind: OperatorConfiguration
-            listKind: OperatorConfigurationList
-            plural: operatorconfigurations
-            shortNames:
+          kind: OperatorConfiguration
+          listKind: OperatorConfigurationList
+          plural: operatorconfigurations
+          shortNames:
             - opconfig
-            singular: operatorconfiguration
-          scope: Namespaced
-          versions:
+          singular: operatorconfiguration
+        scope: Namespaced
+        versions:
           - additionalPrinterColumns:
-            - description: Spilo image to be used for Pods
-              jsonPath: .configuration.docker_image
-              name: Image
-              type: string
-            - description: Label for K8s resources created by operator
-              jsonPath: .configuration.kubernetes.cluster_name_label
-              name: Cluster-Label
-              type: string
-            - description: Name of service account to be used
-              jsonPath: .configuration.kubernetes.pod_service_account_name
-              name: Service-Account
-              type: string
-            - description: Minimum number of instances per Postgres cluster
-              jsonPath: .configuration.min_instances
-              name: Min-Instances
-              type: integer
-            - jsonPath: .metadata.creationTimestamp
-              name: Age
-              type: date
+              - description: Spilo image to be used for Pods
+                jsonPath: .configuration.docker_image
+                name: Image
+                type: string
+              - description: Label for K8s resources created by operator
+                jsonPath: .configuration.kubernetes.cluster_name_label
+                name: Cluster-Label
+                type: string
+              - description: Name of service account to be used
+                jsonPath: .configuration.kubernetes.pod_service_account_name
+                name: Service-Account
+                type: string
+              - description: Minimum number of instances per Postgres cluster
+                jsonPath: .configuration.min_instances
+                name: Min-Instances
+                type: integer
+              - jsonPath: .metadata.creationTimestamp
+                name: Age
+                type: date
             name: v1
             schema:
               openAPIV3Schema:
                 properties:
                   apiVersion:
                     enum:
-                    - acid.zalan.do/v1
+                      - acid.zalan.do/v1
                     type: string
                   configuration:
                     properties:
@@ -568,8 +556,8 @@ spec:
                           connection_pooler_mode:
                             default: transaction
                             enum:
-                            - session
-                            - transaction
+                              - session
+                              - transaction
                             type: string
                           connection_pooler_number_of_instances:
                             default: 2
@@ -700,9 +688,9 @@ spec:
                                 userkey:
                                   type: string
                               required:
-                              - secretname
-                              - userkey
-                              - passwordkey
+                                - secretname
+                                - userkey
+                                - passwordkey
                               type: object
                             nullable: true
                             type: array
@@ -723,8 +711,8 @@ spec:
                             type: object
                           node_readiness_label_merge:
                             enum:
-                            - AND
-                            - OR
+                              - AND
+                              - OR
                             type: string
                           oauth_token_secret_name:
                             default: postgresql-operator
@@ -745,8 +733,8 @@ spec:
                           pod_management_policy:
                             default: ordered_ready
                             enum:
-                            - ordered_ready
-                            - parallel
+                              - ordered_ready
+                              - parallel
                             type: string
                           pod_priority_class_name:
                             type: string
@@ -786,10 +774,10 @@ spec:
                           storage_resize_mode:
                             default: pvc
                             enum:
-                            - ebs
-                            - mixed
-                            - pvc
-                            - "off"
+                              - ebs
+                              - mixed
+                              - pvc
+                              - "off"
                             type: string
                           toleration:
                             additionalProperties:
@@ -825,8 +813,8 @@ spec:
                           external_traffic_policy:
                             default: Cluster
                             enum:
-                            - Cluster
-                            - Local
+                              - Cluster
+                              - Local
                             type: string
                           master_dns_name_format:
                             default: '{cluster}.{namespace}.{hostedzone}'
@@ -884,9 +872,9 @@ spec:
                           logical_backup_provider:
                             default: s3
                             enum:
-                            - az
-                            - gcs
-                            - s3
+                              - az
+                              - gcs
+                              - s3
                             type: string
                           logical_backup_s3_access_key_id:
                             type: string
@@ -1038,8 +1026,7 @@ spec:
                             default: true
                             type: boolean
                           pam_configuration:
-                            default: https://info.example.com/oauth2/tokeninfo?access_token=
-                              uid realm=/employees
+                            default: https://info.example.com/oauth2/tokeninfo?access_token= uid realm=/employees
                             type: string
                           pam_role_name:
                             default: zalandos
@@ -1050,8 +1037,8 @@ spec:
                             type: array
                           protected_role_names:
                             default:
-                            - admin
-                            - cron_admin
+                              - admin
+                              - cron_admin
                             items:
                               type: string
                             type: array
@@ -1128,81 +1115,81 @@ spec:
                     type: object
                   kind:
                     enum:
-                    - OperatorConfiguration
+                      - OperatorConfiguration
                     type: string
                   status:
                     additionalProperties:
                       type: string
                     type: object
                 required:
-                - kind
-                - apiVersion
-                - configuration
+                  - kind
+                  - apiVersion
+                  - configuration
                 type: object
             served: true
             storage: true
             subresources:
               status: {}
-      - apiVersion: apiextensions.k8s.io/v1
-        kind: CustomResourceDefinition
-        metadata:
-          name: postgresqls.acid.zalan.do
-        spec:
-          group: acid.zalan.do
-          names:
-            categories:
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      metadata:
+        name: postgresqls.acid.zalan.do
+      spec:
+        group: acid.zalan.do
+        names:
+          categories:
             - all
-            kind: postgresql
-            listKind: postgresqlList
-            plural: postgresqls
-            shortNames:
+          kind: postgresql
+          listKind: postgresqlList
+          plural: postgresqls
+          shortNames:
             - pg
-            singular: postgresql
-          scope: Namespaced
-          versions:
+          singular: postgresql
+        scope: Namespaced
+        versions:
           - additionalPrinterColumns:
-            - description: Team responsible for Postgres cluster
-              jsonPath: .spec.teamId
-              name: Team
-              type: string
-            - description: PostgreSQL version
-              jsonPath: .spec.postgresql.version
-              name: Version
-              type: string
-            - description: Number of Pods per Postgres cluster
-              jsonPath: .spec.numberOfInstances
-              name: Pods
-              type: integer
-            - description: Size of the bound volume
-              jsonPath: .spec.volume.size
-              name: Volume
-              type: string
-            - description: Requested CPU for Postgres containers
-              jsonPath: .spec.resources.requests.cpu
-              name: CPU-Request
-              type: string
-            - description: Requested memory for Postgres containers
-              jsonPath: .spec.resources.requests.memory
-              name: Memory-Request
-              type: string
-            - jsonPath: .metadata.creationTimestamp
-              name: Age
-              type: date
-            - description: Current sync status of postgresql resource
-              jsonPath: .status.PostgresClusterStatus
-              name: Status
-              type: string
+              - description: Team responsible for Postgres cluster
+                jsonPath: .spec.teamId
+                name: Team
+                type: string
+              - description: PostgreSQL version
+                jsonPath: .spec.postgresql.version
+                name: Version
+                type: string
+              - description: Number of Pods per Postgres cluster
+                jsonPath: .spec.numberOfInstances
+                name: Pods
+                type: integer
+              - description: Size of the bound volume
+                jsonPath: .spec.volume.size
+                name: Volume
+                type: string
+              - description: Requested CPU for Postgres containers
+                jsonPath: .spec.resources.requests.cpu
+                name: CPU-Request
+                type: string
+              - description: Requested memory for Postgres containers
+                jsonPath: .spec.resources.requests.memory
+                name: Memory-Request
+                type: string
+              - jsonPath: .metadata.creationTimestamp
+                name: Age
+                type: date
+              - description: Current sync status of postgresql resource
+                jsonPath: .status.PostgresClusterStatus
+                name: Status
+                type: string
             name: v1
             schema:
               openAPIV3Schema:
                 properties:
                   apiVersion:
                     enum:
-                    - acid.zalan.do/v1
+                      - acid.zalan.do/v1
                     type: string
                   kind:
                     enum:
-                    - postgresql
+                      - postgresql
                     type: string
                   spec:
                     properties:
@@ -1224,9 +1211,9 @@ spec:
                               type: object
                               x-kubernetes-preserve-unknown-fields: true
                           required:
-                          - name
-                          - mountPath
-                          - volumeSource
+                            - name
+                            - mountPath
+                            - volumeSource
                           type: object
                         type: array
                       allowedSourceRanges:
@@ -1256,7 +1243,7 @@ spec:
                             format: uuid
                             type: string
                         required:
-                        - cluster
+                          - cluster
                         type: object
                       connectionPooler:
                         properties:
@@ -1266,8 +1253,8 @@ spec:
                             type: integer
                           mode:
                             enum:
-                            - session
-                            - transaction
+                              - session
+                              - transaction
                             type: string
                           numberOfInstances:
                             minimum: 1
@@ -1344,8 +1331,7 @@ spec:
                         type: string
                       maintenanceWindows:
                         items:
-                          pattern: ^\ *((Mon|Tue|Wed|Thu|Fri|Sat|Sun):(2[0-3]|[01]?\d):([0-5]?\d)|(2[0-3]|[01]?\d):([0-5]?\d))-((Mon|Tue|Wed|Thu|Fri|Sat|Sun):(2[0-3]|[01]?\d):([0-5]?\d)|(2[0-3]|[01]?\d):([0-5]?\d))\
-                            *$
+                          pattern: ^\ *((Mon|Tue|Wed|Thu|Fri|Sat|Sun):(2[0-3]|[01]?\d):([0-5]?\d)|(2[0-3]|[01]?\d):([0-5]?\d))-((Mon|Tue|Wed|Thu|Fri|Sat|Sun):(2[0-3]|[01]?\d):([0-5]?\d)|(2[0-3]|[01]?\d):([0-5]?\d))\ *$
                           type: string
                         type: array
                       masterServiceAnnotations:
@@ -1371,8 +1357,8 @@ spec:
                                               type: string
                                             type: array
                                         required:
-                                        - key
-                                        - operator
+                                          - key
+                                          - operator
                                         type: object
                                       type: array
                                     matchFields:
@@ -1387,8 +1373,8 @@ spec:
                                               type: string
                                             type: array
                                         required:
-                                        - key
-                                        - operator
+                                          - key
+                                          - operator
                                         type: object
                                       type: array
                                   type: object
@@ -1396,8 +1382,8 @@ spec:
                                   format: int32
                                   type: integer
                               required:
-                              - preference
-                              - weight
+                                - preference
+                                - weight
                               type: object
                             type: array
                           requiredDuringSchedulingIgnoredDuringExecution:
@@ -1417,8 +1403,8 @@ spec:
                                               type: string
                                             type: array
                                         required:
-                                        - key
-                                        - operator
+                                          - key
+                                          - operator
                                         type: object
                                       type: array
                                     matchFields:
@@ -1433,14 +1419,14 @@ spec:
                                               type: string
                                             type: array
                                         required:
-                                        - key
-                                        - operator
+                                          - key
+                                          - operator
                                         type: object
                                       type: array
                                   type: object
                                 type: array
                             required:
-                            - nodeSelectorTerms
+                              - nodeSelectorTerms
                             type: object
                         type: object
                       numberOfInstances:
@@ -1496,15 +1482,15 @@ spec:
                             type: object
                           version:
                             enum:
-                            - "10"
-                            - "11"
-                            - "12"
-                            - "13"
-                            - "14"
-                            - "15"
+                              - "10"
+                              - "11"
+                              - "12"
+                              - "13"
+                              - "14"
+                              - "15"
                             type: string
                         required:
-                        - version
+                          - version
                         type: object
                       preparedDatabases:
                         additionalProperties:
@@ -1576,12 +1562,12 @@ spec:
                         type: integer
                       standby:
                         oneOf:
-                        - required:
-                          - s3_wal_path
-                        - required:
-                          - gs_wal_path
-                        - required:
-                          - standby_host
+                          - required:
+                              - s3_wal_path
+                          - required:
+                              - gs_wal_path
+                          - required:
+                              - standby_host
                         properties:
                           gs_wal_path:
                             type: string
@@ -1615,13 +1601,13 @@ spec:
                                   payloadColumn:
                                     type: string
                                 required:
-                                - eventType
+                                  - eventType
                                 type: object
                               type: object
                           required:
-                          - applicationId
-                          - database
-                          - tables
+                            - applicationId
+                            - database
+                            - tables
                           type: object
                         type: array
                       teamId:
@@ -1639,23 +1625,23 @@ spec:
                           secretName:
                             type: string
                         required:
-                        - secretName
+                          - secretName
                         type: object
                       tolerations:
                         items:
                           properties:
                             effect:
                               enum:
-                              - NoExecute
-                              - NoSchedule
-                              - PreferNoSchedule
+                                - NoExecute
+                                - NoSchedule
+                                - PreferNoSchedule
                               type: string
                             key:
                               type: string
                             operator:
                               enum:
-                              - Equal
-                              - Exists
+                                - Equal
+                                - Exists
                               type: string
                             tolerationSeconds:
                               type: integer
@@ -1670,34 +1656,34 @@ spec:
                         additionalProperties:
                           items:
                             enum:
-                            - bypassrls
-                            - BYPASSRLS
-                            - nobypassrls
-                            - NOBYPASSRLS
-                            - createdb
-                            - CREATEDB
-                            - nocreatedb
-                            - NOCREATEDB
-                            - createrole
-                            - CREATEROLE
-                            - nocreaterole
-                            - NOCREATEROLE
-                            - inherit
-                            - INHERIT
-                            - noinherit
-                            - NOINHERIT
-                            - login
-                            - LOGIN
-                            - nologin
-                            - NOLOGIN
-                            - replication
-                            - REPLICATION
-                            - noreplication
-                            - NOREPLICATION
-                            - superuser
-                            - SUPERUSER
-                            - nosuperuser
-                            - NOSUPERUSER
+                              - bypassrls
+                              - BYPASSRLS
+                              - nobypassrls
+                              - NOBYPASSRLS
+                              - createdb
+                              - CREATEDB
+                              - nocreatedb
+                              - NOCREATEDB
+                              - createrole
+                              - CREATEROLE
+                              - nocreaterole
+                              - NOCREATEROLE
+                              - inherit
+                              - INHERIT
+                              - noinherit
+                              - NOINHERIT
+                              - login
+                              - LOGIN
+                              - nologin
+                              - NOLOGIN
+                              - replication
+                              - REPLICATION
+                              - noreplication
+                              - NOREPLICATION
+                              - superuser
+                              - SUPERUSER
+                              - nosuperuser
+                              - NOSUPERUSER
                             type: string
                           nullable: true
                           type: array
@@ -1725,18 +1711,18 @@ spec:
                                       type: string
                                     operator:
                                       enum:
-                                      - DoesNotExist
-                                      - Exists
-                                      - In
-                                      - NotIn
+                                        - DoesNotExist
+                                        - Exists
+                                        - In
+                                        - NotIn
                                       type: string
                                     values:
                                       items:
                                         type: string
                                       type: array
                                   required:
-                                  - key
-                                  - operator
+                                    - key
+                                    - operator
                                   type: object
                                 type: array
                               matchLabels:
@@ -1753,62 +1739,61 @@ spec:
                           throughput:
                             type: integer
                         required:
-                        - size
+                          - size
                         type: object
                     required:
-                    - numberOfInstances
-                    - teamId
-                    - postgresql
-                    - volume
+                      - numberOfInstances
+                      - teamId
+                      - postgresql
+                      - volume
                     type: object
                   status:
                     additionalProperties:
                       type: string
                     type: object
                 required:
-                - kind
-                - apiVersion
-                - spec
+                  - kind
+                  - apiVersion
+                  - spec
                 type: object
             served: true
             storage: true
             subresources:
               status: {}
-      - apiVersion: apiextensions.k8s.io/v1
-        kind: CustomResourceDefinition
-        metadata:
-          name: postgresteams.acid.zalan.do
-        spec:
-          group: acid.zalan.do
-          names:
-            categories:
+    - apiVersion: apiextensions.k8s.io/v1
+      kind: CustomResourceDefinition
+      metadata:
+        name: postgresteams.acid.zalan.do
+      spec:
+        group: acid.zalan.do
+        names:
+          categories:
             - all
-            kind: PostgresTeam
-            listKind: PostgresTeamList
-            plural: postgresteams
-            shortNames:
+          kind: PostgresTeam
+          listKind: PostgresTeamList
+          plural: postgresteams
+          shortNames:
             - pgteam
-            singular: postgresteam
-          scope: Namespaced
-          versions:
+          singular: postgresteam
+        scope: Namespaced
+        versions:
           - name: v1
             schema:
               openAPIV3Schema:
                 properties:
                   apiVersion:
                     enum:
-                    - acid.zalan.do/v1
+                      - acid.zalan.do/v1
                     type: string
                   kind:
                     enum:
-                    - PostgresTeam
+                      - PostgresTeam
                     type: string
                   spec:
                     properties:
                       additionalMembers:
                         additionalProperties:
-                          description: List of users who will also be added to the
-                            Postgres cluster
+                          description: List of users who will also be added to the Postgres cluster
                           items:
                             type: string
                           nullable: true
@@ -1822,13 +1807,11 @@ spec:
                             type: string
                           nullable: true
                           type: array
-                        description: Map for teamId and associated additional superuser
-                          teams
+                        description: Map for teamId and associated additional superuser teams
                         type: object
                       additionalTeams:
                         additionalProperties:
-                          description: List of teams whose members will also be added
-                            to the Postgres cluster
+                          description: List of teams whose members will also be added to the Postgres cluster
                           items:
                             type: string
                           nullable: true
@@ -1837,161 +1820,60 @@ spec:
                         type: object
                     type: object
                 required:
-                - kind
-                - apiVersion
-                - spec
+                  - kind
+                  - apiVersion
+                  - spec
                 type: object
             served: true
             storage: true
             subresources:
               status: {}
-      xaasCrd:
-        apiVersion: apiextensions.k8s.io/v1
-        kind: CustomResourceDefinition
-        metadata:
-          name: postgresqls.marketplace.kratix.io
-        spec:
-          group: marketplace.kratix.io
-          names:
-            kind: postgresql
-            plural: postgresqls
-            singular: postgresql
-          scope: Namespaced
-          versions:
-          - name: v1alpha1
-            schema:
-              openAPIV3Schema:
-                properties:
-                  spec:
-                    properties:
-                      dbName:
-                        default: postgres
-                        description: |
-                          Database name. A database will be created with this name. The owner of the database will be the teamId.
-                        type: string
-                      env:
-                        default: dev
-                        description: |
-                          Configures and deploys this PostgreSQL with environment specific configuration. Prod PostgreSQL are configured with backups and more resources.
-                        pattern: ^(dev|prod)$
-                        type: string
-                      namespace:
-                        default: default
-                        description: |
-                          Kubernetes namespace to create the Postgres cluster.
-                        type: string
-                      teamId:
-                        default: acid
-                        description: |
-                          Team ID. A superuser role will be created with this name.
-                        type: string
-                    type: object
-                type: object
-            served: true
-            storage: true
-      xaasRequestPipeline:
-      - ghcr.io/syntasso/promise-postgresql/postgresql-request-pipeline:v0.1.0
-    status: {}
-  - apiVersion: platform.kratix.io/v1alpha1
-    kind: Promise
-    metadata:
-      creationTimestamp: null
-      name: unleashserver
-      namespace: default
-    spec:
-      clusterSelector:
-        environment: dev
-      xaasCrd:
-        apiVersion: apiextensions.k8s.io/v1
-        kind: CustomResourceDefinition
-        metadata:
-          name: unleashservers.marketplace.kratix.io
-        spec:
-          group: marketplace.kratix.io
-          names:
-            kind: unleashserver
-            plural: unleashservers
-            singular: unleashserver
-          scope: Namespaced
-          versions:
-          - name: v1alpha1
-            schema:
-              openAPIV3Schema:
-                properties:
-                  spec:
-                    properties:
-                      autoscaling:
-                        default: false
-                        description: |
-                          If true, autoscaling will be enabled with a
-                          minimum of 2 replicas, max of 5
-                        type: boolean
-                      database_config:
-                        description: Postgres Database configuration
-                        properties:
-                          dbName:
-                            default: unleash
-                            description: Name of the database to use
-                            type: string
-                          host:
-                            description: Database Host
-                            type: string
-                          port:
-                            default: 5432
-                            description: Database Port
-                            type: integer
-                          secretName:
-                            description: |
-                              The name of the secret containing Postgres
-                              credentials
-                            type: string
-                          ssl:
-                            description: SSL configuration
-                            type: string
-                          user:
-                            default: unleash
-                            description: Database user
-                            type: string
-                        required:
-                        - host
-                        - secretName
-                        type: object
-                    required:
-                    - database_config
-                    type: object
-                type: object
-            served: true
-            storage: true
-      xaasRequestPipeline:
-      - ghcr.io/syntasso/promise-unleash/unleash-server-request-pipeline:v0.1.0
   xaasCrd:
     apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
-      name: unleashs.marketplace.kratix.io
+      name: postgresqls.marketplace.kratix.io
     spec:
       group: marketplace.kratix.io
       names:
-        kind: unleash
-        plural: unleashs
-        singular: unleash
+        kind: postgresql
+        plural: postgresqls
+        singular: postgresql
       scope: Namespaced
       versions:
-      - name: v1alpha1
-        schema:
-          openAPIV3Schema:
-            properties:
-              spec:
-                properties:
-                  autoscaling:
-                    default: false
-                    description: If true, autoscaling will be enabled with a minimum
-                      of 2 replicas, max of 5
-                    type: boolean
-                type: object
-            type: object
-        served: true
-        storage: true
+        - name: v1alpha1
+          schema:
+            openAPIV3Schema:
+              properties:
+                spec:
+                  properties:
+                    dbName:
+                      default: postgres
+                      description: |
+                        Database name. A database will be created with this name. The owner of the database will be the teamId.
+                      type: string
+                    env:
+                      default: dev
+                      description: |
+                        Configures and deploys this PostgreSQL with environment specific configuration. Prod PostgreSQL are configured with backups and more resources.
+                      pattern: ^(dev|prod)$
+                      type: string
+                    namespace:
+                      default: default
+                      description: |
+                        Kubernetes namespace to create the Postgres cluster.
+                      type: string
+                    teamId:
+                      default: acid
+                      description: |
+                        Team ID. A superuser role will be created with this name.
+                      type: string
+                  type: object
+              type: object
+          served: true
+          storage: true
   xaasRequestPipeline:
-  - ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
+    - ghcr.io/syntasso/promise-postgresql/postgresql-request-pipeline:v0.1.0
+  clusterSelector:
+    environment: dev
 status: {}

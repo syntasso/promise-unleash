@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PWD="$( cd $(dirname $0)/.. && pwd)"
+pwd="$( cd $(dirname $0)/.. && pwd)"
 set -e
 
 if ! which worker-resource-builder >/dev/null; then
@@ -8,12 +8,12 @@ if ! which worker-resource-builder >/dev/null; then
 	exit 1
 fi
 
-if [ ! -d "${PWD}/resources" ]; then
+if [ ! -d "${pwd}/resources" ]; then
   exit 0
 fi
 
 promise_contents=$(worker-resource-builder \
-  -k8s-resources-directory "${PWD}/resources" \
-	-promise "${PWD}/../promise.yaml")
+  -k8s-resources-directory "${pwd}/resources" \
+	-promise "${pwd}/../promise.yaml")
 
-echo "$promise_contents" > "${PWD}/../promise.yaml"
+echo "$promise_contents" > "${pwd}/../promise.yaml"

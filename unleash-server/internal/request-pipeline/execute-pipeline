@@ -1,23 +1,24 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -x
+set -exo pipefail
 
 name="$(yq eval '.metadata.name' /input/object.yaml)"
 namespace="${name}-unleash"
 autoscaling="$(yq eval '.spec.autoscaling' /input/object.yaml)"
-
-# Read the config
-  # From configmap?
-  # From the xaasCRD
+port="$(yq eval '.spec.database_config.port // 5432' /input/object.yaml)"
+user="$(yq eval '.spec.database_config.user // "postgres" ' /input/object.yaml)"
+dbName="$(yq eval '.spec.database_config.dbName // "example"' /input/object.yaml)"
+host="$(yq eval '.spec.database_config.host // "localhost"' /input/object.yaml)"
+export ssl="$(yq eval '.spec.database_config.ssl // "true"' /input/object.yaml)"
+secretName="$(yq eval '.spec.database_config.secretName // "mysecret" ' /input/object.yaml)"
 
 helm_flags="--set postgresql.enabled=false \
-            --set dbConfig.useExistingSecret.name=postgres.acid-example-postgresql.credentials.postgresql.acid.zalan.do \
-            --set dbConfig.useExistingSecret.key=???? \
-            --set dbConfig.database=???? \
-            --set dbConfig.host=???? \
-            --set dbConfig.port=???? \
-            --set dbConfig.user=???? \"
-            "
+            --set dbConfig.useExistingSecret.name=${secretName} \
+            --set dbConfig.database=${dbName} \
+            --set dbConfig.host=${host} \
+            --set dbConfig.port=${port} \
+            --set dbConfig.user=${user}"
+
 if [ "${autoscaling}" = "true" ]; then
   helm_flags="${helm_flags} --set autoscaling.enabled=true \
               --set autoscaling.minReplicas=2 \
@@ -32,74 +33,15 @@ EOF
 
 helm template ${name} unleash ${helm_flags} \
   --skip-tests \
-  --namespace=${namespace} \
-  --repo https://docs.getunleash.io/helm-charts | sed s_autoscaling/v2beta1_autoscaling/v2_g > unleash.yaml
+  --namespace ${namespace} \
+  --repo https://docs.getunleash.io/helm-charts |
+    sed s_autoscaling/v2beta1_autoscaling/v2_g > unleash-template.yaml
 
-kubectl kustomize . | \
-  yq 'select(document_index != 0)' > /output/unleash.yaml
+cat unleash-template.yaml | yq '(select(.kind == "Deployment") | .spec.template.spec.containers[] | select(.name == "unleash") | .env[] | select(.name == "DATABASE_SSL") | .value) = strenv(ssl)' > unleash.yaml
+
+kubectl kustomize . > /output/unleash.yaml
 
 kubectl create namespace $namespace --dry-run=client -o yaml > /output/namespace.yaml
-
-# command="kubectl create secret generic --namespace $namespace unleash-postgresql --from-literal=postgres-password=\$(pwgen -1 32) --from-literal=password=\$(pwgen -1 32)"
-
-# cat > /output/job.yaml <<EOF
-# apiVersion: batch/v1
-# kind: Job
-# metadata:
-#   name: secret-bootstrapper
-#   namespace: ${namespace}
-# spec:
-#   template:
-#     spec:
-#       serviceAccount: secret-bootstrapper
-#       containers:
-#       - name: bootstrapper
-#         image: ghcr.io/syntasso/promise-unleash/unleash-request-pipeline:v0.1.0
-#         command: ["sh",  "-c", "${command}"]
-#       restartPolicy: Never
-#   backoffLimit: 4
-# EOF
-
-
-cat > /output/sa.yaml <<EOF
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: secret-bootstrapper
-  namespace: ${namespace}
-EOF
-
-cat > /output/role.yaml <<EOF
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: secret-bootstrapper
-  namespace: ${namespace}
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - "*"
-EOF
-
-cat > /output/rolebinding.yaml <<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: secret-bootstrapper
-  namespace: ${namespace}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: secret-bootstrapper
-subjects:
-- kind: ServiceAccount
-  name: secret-bootstrapper
-EOF
-
 
 cat > /metadata/status.yaml <<EOF
 message: Deployed to namepace $namespace. Initial default admin password is "unleash4all"

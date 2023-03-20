@@ -1,19 +1,27 @@
 #!/usr/bin/env sh
 
-######
-# UNLEASH PROMISE PIPELINE
-#####
+set -exo pipefail
 
-set -x
+export name="$(yq eval '.metadata.name' /input/object.yaml)"
+export namespace="${name}-unleash"
+export autoscaling="$(yq eval '.spec.autoscaling' /input/object.yaml)"
 
-name="$(yq eval '.metadata.name' /input/object.yaml)"
-namespace="${name}-unleash"
-autoscaling="$(yq eval '.spec.autoscaling' /input/object.yaml)"
+team="unleash"
+
+export ssl="'{\"rejectUnauthorized\": false }'"
 
 # Create resource request for a new unleash server
-yq eval /resources/unleash-request.yaml > /output/unleash-request.yaml
-# setup dbproperties
+yq eval ".metadata.name = \"${name}\" |
+         .spec.database_config.host = \"${team}-${name}-postgresql.${namespace}.svc.cluster.local\" |
+         .spec.database_config.user = \"postgres\" |
+         .spec.database_config.dbName = \"unleash\" |
+         .spec.database_config.ssl = env(ssl) |
+         .spec.database_config.secretName = \"postgres.${team}-${name}-postgresql.credentials.postgresql.acid.zalan.do\" |
+         .spec.autoscaling = env(autoscaling)" /resources/unleash-request.yaml > /output/unleash-request.yaml
 
 # Create RR for a new postgres, and set the namespace
-# setup namespace, dbname and stuff
-yq eval /resources/postgres-request.yaml > /output/postgres-request.yaml
+yq eval ".metadata.name = \"${name}\" |
+         .spec.namespace = \"${namespace}\" |
+         .spec.teamId = \"${team}\" |
+         .spec.dbName = \"unleash\"
+    " /resources/postgres-request.yaml > /output/postgres-request.yaml

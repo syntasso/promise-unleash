@@ -4,8 +4,7 @@ PWD="$( cd $(dirname $0)/.. && pwd)"
 
 set -e
 
-promise_name="unleashserver"
-pipeline_image="ghcr.io/syntasso/promise-${promise_name}/${promise_name}-request-pipeline:v0.1.0"
+pipeline_image="ghcr.io/syntasso/promise-unleash/unleash-server-request-pipeline:v0.1.0"
 
 while [ $# -gt 0 ]; do
   case "$1" in

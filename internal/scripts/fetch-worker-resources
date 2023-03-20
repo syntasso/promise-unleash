@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -eux
+pwd="$( cd $(dirname $0)/.. && pwd)"
+
+curl -s https://raw.githubusercontent.com/syntasso/promise-postgresql/main/promise.yaml |
+    yq '.spec.clusterSelector = {"environment": "dev"}'  > ${pwd}/resources/postgres-promise.yaml
+cp ${pwd}/../unleash-server/promise.yaml ${pwd}/resources/unleash-server-promise.yaml
