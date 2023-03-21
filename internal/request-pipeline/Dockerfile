@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.authors "kratix@syntasso.io"
 LABEL org.opencontainers.image.source https://github.com/syntasso/promise-unleash
 
 RUN [ "mkdir", "/resources" ]
-ADD resources/* "/resources"
+ADD resources/* "/resources/"
 ADD execute-pipeline execute-pipeline
 
 CMD [ "sh", "-c", "./execute-pipeline" ]
