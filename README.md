@@ -2,8 +2,8 @@
 
 > **Warning**
 >
-> To use this Promise, the Kubernetes cluster running Kratix must be registered
-as a Worker Cluster
+> **To use this Promise, the Kubernetes cluster running Kratix must be registered
+as a Worker Cluster**
 >
 > Check out the [Compound Promises
 guide](https://kratix.io/docs/main/guides/compound-promises) on the Kratix
@@ -16,12 +16,12 @@ Unleash needs a database to run. This Promise creates a database using the Krati
 
 To install:
 ```
-kubectl apply -f https://raw.githubusercontent.com/syntasso/promise-unleash/main/promise.yaml
+kubectl apply --context kind-platform -f https://raw.githubusercontent.com/syntasso/promise-unleash/main/promise.yaml
 ```
 
 To make a resource request:
 ```
-kubectl apply -f https://raw.githubusercontent.com/syntasso/promise-unleash/main/resource-request.yaml
+kubectl apply --context kind-platform -f https://raw.githubusercontent.com/syntasso/promise-unleash/main/resource-request.yaml
 ```
 
 The request above will create a Unleash and a PostreSQL instance in a dedicated namespace.
@@ -32,7 +32,7 @@ To access your Unleash instance, run in your worker cluster:
 
 ```bash
 # Replace <example-unleash> with the correct namespace
-kubectl port-forward -n example-unleash svc/example-unleash 4242
+kubectl port-forward --context kind-worker -n example-unleash svc/example-unleash 4242
 ```
 
 Go to http://localhost:4242. The default credentials are provided in the Promise status field or available below:
