@@ -26,7 +26,7 @@ kubectl apply -f https://raw.githubusercontent.com/syntasso/promise-unleash/main
 
 The request above will create a Unleash and a PostreSQL instance in a dedicated namespace.
 
-## Accessing Unleash
+## Accessing Unleash
 
 To access your Unleash instance, run in your worker cluster:
 
