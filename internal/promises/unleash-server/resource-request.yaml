@@ -8,5 +8,7 @@ spec:
   database_config:
     dbName: unleash
     host: unleash-example-postgresql.example-unleash.svc.cluster.local
+    port: 5432
     secretName: postgres.unleash-example-postgresql.credentials.postgresql.acid.zalan.do
+    ssl: '{"rejectUnauthorized": false }'
     user: postgres
