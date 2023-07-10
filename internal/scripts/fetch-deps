@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -eux
+pwd="$( cd $(dirname $0)/.. && pwd)"
+
+curl -s https://raw.githubusercontent.com/syntasso/promise-postgresql/main/promise.yaml |
+    yq '.spec.scheduling[0].target.matchLabels = {"environment": "dev"}'  > ${pwd}/dependencies/postgres-promise.yaml
+cp ${pwd}/promises/unleash-server/promise.yaml ${pwd}/dependencies/unleash-server-promise.yaml

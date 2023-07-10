@@ -38,10 +38,9 @@ helm template ${name} unleash ${helm_flags} \
     sed s_autoscaling/v2beta1_autoscaling/v2_g > unleash-template.yaml
 
 export resources='{ "limits": {"cpu": "400m", "memory": "512Mi" }, "requests": { "cpu": "75m", "memory": "128Mi" }}'
-cat unleash-template.yaml |
-  yq '(select(.kind == "Deployment") | .spec.template.spec.containers[] | select(.name == "unleash") | .env[] | select(.name == "DATABASE_SSL") | .value) = strenv(ssl)' |
-  yq '(select(.kind == "Deployment") | .spec.template.spec.containers[] | select(.name == "unleash" ).resources ) = env(resources)' |
-  > unleash.yaml
+cat unleash-template.yaml | \
+  yq '(select(.kind == "Deployment") | .spec.template.spec.containers[] | select(.name == "unleash") | .env[] | select(.name == "DATABASE_SSL") | .value) = strenv(ssl)' | \
+  yq '(select(.kind == "Deployment") | .spec.template.spec.containers[] | select(.name == "unleash" ).resources ) = env(resources)' > unleash.yaml
 
 kubectl kustomize . > /output/unleash.yaml
 

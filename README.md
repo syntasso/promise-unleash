@@ -24,7 +24,7 @@ To make a resource request:
 kubectl apply --context kind-platform -f https://raw.githubusercontent.com/syntasso/promise-unleash/main/resource-request.yaml
 ```
 
-The request above will create a Unleash and a PostreSQL instance in a dedicated namespace.
+The request above will create a Unleash and a PostgreSQL instance in a dedicated namespace.
 
 ## Accessing Unleash
 

@@ -1,0 +1,83 @@
+apiVersion: platform.kratix.io/v1alpha1
+kind: Promise
+metadata:
+  name: unleashserver
+  namespace: default
+spec:
+  api:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: unleashservers.marketplace.kratix.io
+    spec:
+      group: marketplace.kratix.io
+      names:
+        kind: unleashserver
+        plural: unleashservers
+        singular: unleashserver
+      scope: Namespaced
+      versions:
+        - name: v1alpha1
+          schema:
+            openAPIV3Schema:
+              properties:
+                spec:
+                  properties:
+                    autoscaling:
+                      default: false
+                      description: |
+                        If true, autoscaling will be enabled with a
+                        minimum of 2 replicas, max of 5
+                      type: boolean
+                    database_config:
+                      description: Postgres Database configuration
+                      properties:
+                        dbName:
+                          default: unleash
+                          description: Name of the database to use
+                          type: string
+                        host:
+                          description: Database Host
+                          type: string
+                        port:
+                          default: 5432
+                          description: Database Port
+                          type: integer
+                        secretName:
+                          description: |
+                            The name of the secret containing Postgres
+                            credentials
+                          type: string
+                        ssl:
+                          description: SSL configuration
+                          type: string
+                        user:
+                          default: unleash
+                          description: Database user
+                          type: string
+                      required:
+                        - host
+                        - secretName
+                      type: object
+                  required:
+                    - database_config
+                  type: object
+              type: object
+          served: true
+          storage: true
+  scheduling:
+    - target:
+        matchLabels:
+          environment: dev
+  workflows:
+    resource:
+      configure:
+        - apiVersion: platform.kratix.io/v1alpha1
+          kind: Pipeline
+          metadata:
+            name: instance-configure
+            namespace: default
+          spec:
+            containers:
+              - image: ghcr.io/syntasso/promise-unleash/unleash-server-configure-pipeline:v0.1.0
+                name: unleash-server-configure-pipeline
