@@ -2,15 +2,15 @@
 
 set -exo pipefail
 
-name="$(yq eval '.metadata.name' /input/object.yaml)"
+name="$(yq eval '.metadata.name' /kratix/input/object.yaml)"
 namespace="${name}-unleash"
-autoscaling="$(yq eval '.spec.autoscaling' /input/object.yaml)"
-port="$(yq eval '.spec.database_config.port // 5432' /input/object.yaml)"
-user="$(yq eval '.spec.database_config.user // "postgres" ' /input/object.yaml)"
-dbName="$(yq eval '.spec.database_config.dbName // "example"' /input/object.yaml)"
-host="$(yq eval '.spec.database_config.host // "localhost"' /input/object.yaml)"
-export ssl="$(yq eval '.spec.database_config.ssl // "true"' /input/object.yaml)"
-secretName="$(yq eval '.spec.database_config.secretName // "mysecret" ' /input/object.yaml)"
+autoscaling="$(yq eval '.spec.autoscaling' /kratix/input/object.yaml)"
+port="$(yq eval '.spec.database_config.port // 5432' /kratix/input/object.yaml)"
+user="$(yq eval '.spec.database_config.user // "postgres" ' /kratix/input/object.yaml)"
+dbName="$(yq eval '.spec.database_config.dbName // "example"' /kratix/input/object.yaml)"
+host="$(yq eval '.spec.database_config.host // "localhost"' /kratix/input/object.yaml)"
+export ssl="$(yq eval '.spec.database_config.ssl // "true"' /kratix/input/object.yaml)"
+secretName="$(yq eval '.spec.database_config.secretName // "mysecret" ' /kratix/input/object.yaml)"
 
 helm_flags="--set postgresql.enabled=false \
             --set dbConfig.useExistingSecret.name=${secretName} \
@@ -42,11 +42,11 @@ cat unleash-template.yaml | \
   yq '(select(.kind == "Deployment") | .spec.template.spec.containers[] | select(.name == "unleash") | .env[] | select(.name == "DATABASE_SSL") | .value) = strenv(ssl)' | \
   yq '(select(.kind == "Deployment") | .spec.template.spec.containers[] | select(.name == "unleash" ).resources ) = env(resources)' > unleash.yaml
 
-kubectl kustomize . > /output/unleash.yaml
+kubectl kustomize . > /kratix/output/unleash.yaml
 
-kubectl create namespace $namespace --dry-run=client -o yaml > /output/namespace.yaml
+kubectl create namespace $namespace --dry-run=client -o yaml > /kratix/output/namespace.yaml
 
-cat > /metadata/status.yaml <<EOF
+cat > /kratix/metadata/status.yaml <<EOF
 message: Deployed to namepace $namespace. Initial default admin password is "unleash4all"
 username: admin
 password: unleash4all
