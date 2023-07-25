@@ -13,19 +13,26 @@ while [ $# -gt 0 ]; do
       docker build \
         --tag "${pipeline_image}" \
         --platform linux/amd64 \
-        "${PWD}/configure-pipeline" ;;
+        "${PWD}/configure-pipeline"
+
+      "${PWD}/promises/unleash-server/internal/scripts/pipeline-image" build ;;
 
     load)
-      kind load docker-image "${pipeline_image}" --name platform ;;
+      kind load docker-image "${pipeline_image}" --name platform
+      "${PWD}/promises/unleash-server/internal/scripts/pipeline-image" load ;;
 
     push)
-      docker push "${pipeline_image}" ;;
+      docker push "${pipeline_image}"
+      "${PWD}/promises/unleash-server/internal/scripts/pipeline-image" push ;;
 
     rmi)
-      docker rmi --force "${pipeline_image}" ;;
+      docker rmi --force "${pipeline_image}"
+
+      "${PWD}/promises/unleash-server/internal/scripts/pipeline-image" rmi ;;
 
     pull)
-      docker pull "${pipeline_image}" ;;
+      docker pull "${pipeline_image}"
+      "${PWD}/promises/unleash-server/internal/scripts/pipeline-image" pull ;;
 
     *)
       echo "unknown command $1"
