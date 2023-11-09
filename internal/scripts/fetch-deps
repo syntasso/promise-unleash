@@ -3,6 +3,8 @@
 set -eux
 pwd="$( cd $(dirname $0)/.. && pwd)"
 
+mkdir -p ${pwd}/configure-pipeline/dependencies
+
 curl -s https://raw.githubusercontent.com/syntasso/promise-postgresql/main/promise.yaml |
-    yq '.spec.scheduling[0].target.matchLabels = {"environment": "dev"}'  > ${pwd}/dependencies/postgres-promise.yaml
-cp ${pwd}/promises/unleash-server/promise.yaml ${pwd}/dependencies/unleash-server-promise.yaml
+    yq '.spec.scheduling[0].target.matchLabels = {"environment": "dev"}'  > ${pwd}/configure-pipeline/dependencies/postgres-promise.yaml
+cp ${pwd}/promises/unleash-server/promise.yaml ${pwd}/configure-pipeline/dependencies/unleash-server-promise.yaml

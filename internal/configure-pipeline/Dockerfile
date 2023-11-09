@@ -6,6 +6,7 @@ LABEL org.opencontainers.image.source https://github.com/syntasso/promise-unleas
 RUN [ "mkdir", "/resources" ]
 ADD resources/* "/resources/"
 ADD execute-pipeline execute-pipeline
+COPY dependencies /tmp/dependencies
 
 CMD [ "sh", "-c", "./execute-pipeline" ]
 ENTRYPOINT []
