@@ -72,8 +72,7 @@ spec:
             containers:
               - image: ghcr.io/syntasso/promise-postgresql/postgresql-configure-pipeline:v0.1.0
                 name: postgresql-configure-pipeline
-  scheduling:
-    - target:
-        matchLabels:
-          environment: dev
+  destinationSelectors:
+    - matchLabels:
+        environment: dev
 status: {}
